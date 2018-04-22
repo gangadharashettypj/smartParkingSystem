@@ -24,9 +24,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     private StorageReference sRef;
     private ProgressDialog pd;
     private DatabaseReference mData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +121,7 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(this.requestCode == requestCode && resultCode == RESULT_OK){
-            pd.show();
+
             final Bitmap bitmap = (Bitmap)data.getExtras().get("data");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -129,8 +132,10 @@ public class MainActivity extends AppCompatActivity
             final Dialog dialog=new Dialog(this);
             dialog.setContentView(view);
 
-
-
+            String slots[]={"s1","s2","s3","s4","s5","s6","s7","s8","s9","s10"};
+            Spinner slotSpinner=view.findViewById(R.id.slotSpinner);
+            ArrayAdapter arrayAdapter =new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,slots);
+            slotSpinner.setAdapter(arrayAdapter);
 
             ImageView imageHolder=view.findViewById(R.id.imageV);
             imageHolder.setImageBitmap(bitmap);
@@ -144,10 +149,8 @@ public class MainActivity extends AppCompatActivity
             btsave.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    pd.show();
                     final HashMap<String,String> usermap=new HashMap<>();
-                    usermap.put("vehicleno",vehicleno.getText().toString());
-                    usermap.put("mobile",mobile.getText().toString());
-                    usermap.put("name",name.getText().toString());
 
 
 
@@ -155,7 +158,8 @@ public class MainActivity extends AppCompatActivity
 
 
 
-                    UploadTask uploadTask = sRef.child("img.jpg").putBytes(bytedata);
+
+                    UploadTask uploadTask = sRef.child(vehicleno.getText().toString()+".jpg").putBytes(bytedata);
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
@@ -167,21 +171,26 @@ public class MainActivity extends AppCompatActivity
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                            usermap.put("vehicleno",vehicleno.getText().toString());
+                            usermap.put("mobile",mobile.getText().toString());
+                            usermap.put("name",name.getText().toString());
                             usermap.put("url",downloadUrl.toString());
-                            pd.dismiss();
+                            mData.child("cars").push().setValue(usermap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+
+                                        Toast.makeText(getApplicationContext(),"Car added sucessfully...",Toast.LENGTH_LONG).show();
+                                        pd.dismiss();
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
                         }
                     });
 
 
-                    mData.child("cars").push().setValue(usermap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                Toast.makeText(getApplicationContext(),"Car added sucessfully...",Toast.LENGTH_LONG).show();
-                                dialog.dismiss();
-                            }
-                        }
-                    });
+
                 }
             });
 
@@ -195,7 +204,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
+            dialog.show();
 
 
             //String partFilename = currentDateFormat();
