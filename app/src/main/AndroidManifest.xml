@@ -19,6 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".startpage.choose" />
+        <activity android:name=".startpage.signin" />
+        <activity android:name=".startpage.signup"></activity>
     </application>
 
 </manifest>
