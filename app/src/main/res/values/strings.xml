@@ -30,4 +30,6 @@
     <string name="id">Id</string>
     <string name="sign_up">Sign Up</string>
     <string name="name">Name</string>
+    <string name="trial">select slot</string>
+    <string name="sign_out">Sign out</string>
 </resources>

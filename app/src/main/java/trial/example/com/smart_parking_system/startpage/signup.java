@@ -1,5 +1,6 @@
 package trial.example.com.smart_parking_system.startpage;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -29,6 +30,7 @@ public class signup extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mData;
     private Button btSignUp;
+    private ProgressDialog pd;
     private TextInputEditText etName,etId,etUser,etPass,etAddress,etPhone;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,10 @@ public class signup extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
         mAuth=FirebaseAuth.getInstance();
         mData= FirebaseDatabase.getInstance().getReference();
+
+        pd=new ProgressDialog(this);
+        pd.setTitle("Regestering...");
+        pd.setMessage("Please wait...");
 
 
         etName=findViewById(R.id.etName);
@@ -55,7 +61,8 @@ public class signup extends AppCompatActivity {
                 if(email.length()<9 || pass.length()<6)
                     Toast.makeText(getApplicationContext(),"Please enter valid username and password",Toast.LENGTH_LONG).show();
                 else{
-                    fnSignUp(email,pass);
+                    pd.show();
+                    fnSignUp(email.replace(" ",""),pass);
                 }
             }
         });
@@ -67,6 +74,7 @@ public class signup extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        pd.dismiss();
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("signup", "createUserWithEmail:success");

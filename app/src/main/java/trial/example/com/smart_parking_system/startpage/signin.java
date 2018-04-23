@@ -1,5 +1,6 @@
 package trial.example.com.smart_parking_system.startpage;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -22,6 +23,7 @@ public class signin extends AppCompatActivity {
 
 
     private FirebaseAuth mAuth;
+    private ProgressDialog pd;
     private TextInputEditText etEmail,etPass;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,9 @@ public class signin extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         etEmail=findViewById(R.id.etEmail1);
         etPass=findViewById(R.id.etPass1);
+        pd=new ProgressDialog(this);
+        pd.setTitle("signing in...");
+        pd.setMessage("Please wait...");
 
         findViewById(R.id.btSignIn1).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,7 +47,8 @@ public class signin extends AppCompatActivity {
                 if(email.length()<9 || pass.length()<6)
                     Toast.makeText(getApplicationContext(),"Please enter valid username and password",Toast.LENGTH_LONG).show();
                 else{
-                    fnSignIn(email,pass);
+                    pd.show();
+                    fnSignIn(email.replace(" ",""),pass);
                 }
 
 
@@ -58,6 +64,7 @@ public class signin extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        pd.dismiss();
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("signin", "signInWithEmail:success");
@@ -74,6 +81,7 @@ public class signin extends AppCompatActivity {
                             Toast.makeText(signin.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
+
 
                         // ...
                     }
