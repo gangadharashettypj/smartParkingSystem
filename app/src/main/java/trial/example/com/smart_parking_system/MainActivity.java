@@ -150,13 +150,26 @@ public class MainActivity extends AppCompatActivity
                             viewHolder.mView.findViewById(R.id.btDelete).setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    HashMap<String,String> map=new HashMap<>();
-                                    mCarsData.child("slots").child(model.getSlot()).setValue("true");
-                                    map= (HashMap<String, String>) dataSnapshot.getValue();
-                                    mCarsData.child("sit_backup").push().setValue(map);
-                                    mCarsData.child("sit").child(dataSnapshot.getKey()).setValue(null);
-                                    Log.i("mainlogic",dataSnapshot.getKey());
 
+                                    mCarsData.child("slots").child(model.getSlot()).setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            HashMap<String,String> map=new HashMap<>();
+                                            map= (HashMap<String, String>) dataSnapshot.getValue();
+                                            mCarsData.child("sit_backup").push().setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    mCarsData.child("sit").child(dataSnapshot.getKey()).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
+                                    Log.i("mainlogic",dataSnapshot.getKey());
                                 }
                             });
 
@@ -261,7 +274,6 @@ public class MainActivity extends AppCompatActivity
 
                 arrayAdapter.notifyDataSetChanged();
                 slotSpinner.setAdapter(arrayAdapter);
-                slotSpinner.notifyAll();
             }
 
             @Override
